@@ -1,3 +1,8 @@
 from django.shortcuts import render
+from rest_framework import viewsets
+from .models import Keyword
+from .serializers import KeywordSerilaizer
 
-# Create your views here.
+class KeywordViewset(viewsets.ModelViewSet):
+    queryset = Keyword.objects.all()
+    serializer_class = KeywordSerilaizer
