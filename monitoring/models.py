@@ -7,7 +7,7 @@ class ContentItem(models.Model):
     title = models.CharField(max_length=255)
     source = models.CharField(max_length=100)
     body = models.TextField()
-    last_updated = models.DateTimeField()
+    last_updated = models.DateTimeField(auto_now=True)
 
 class Flag(models.Models):
     status_choices = [
