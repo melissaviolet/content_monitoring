@@ -4,6 +4,4 @@ from .views import KeywordViewset
 router = DefaultRouter()
 router.register(r'keywords', KeywordViewset)
 
-urlpatterns = [
-     router.urls
-]
+urlpatterns = router.urls

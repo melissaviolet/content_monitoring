@@ -9,7 +9,7 @@ class ContentItem(models.Model):
     body = models.TextField()
     last_updated = models.DateTimeField(auto_now=True)
 
-class Flag(models.Models):
+class Flag(models.Model):
     status_choices = [
         ('pending','Pending'),
         ('relevant', 'Relevant'),
