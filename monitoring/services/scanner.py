@@ -4,12 +4,13 @@ def calculate_score(keyword, content):
     title = content.title.lower()
     body = content.body.lower()
 
-    if kw == title:
+    if kw in title.split():
         return 100
     elif kw in title:
         return 70
     elif kw in body:
-        return 40
+        count = body.count(kw)
+        return min(40 + (count*5), 60)
     return 0
 
 #For scanning
