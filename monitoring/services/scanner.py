@@ -1,3 +1,4 @@
+#For matching the scores 
 def calculate_score(keyword, content):
     kw = keyword.name.lower()
     title = content.title.lower()
@@ -10,3 +11,40 @@ def calculate_score(keyword, content):
     elif kw in body:
         return 40
     return 0
+
+#For scanning
+from ..models import Keyword, ContentItem, Flag
+from django.utils import timezone
+
+def run_scan():
+    keywords = Keyword.objects.all()
+    contents = ContentItem.objects.all()
+
+    for content in contents:
+        for keyword in keywords:
+            score = calculate_score(keyword, content)
+
+            if score == 0:
+                continue
+
+            flag, created = Flag.objects.get_or_create(
+                keyword=keyword,
+                content_item=content,
+                defaults={
+                    'score': score,
+                    'status': 'pending'
+                }
+            )
+
+            # 🔥 SUPPRESSION LOGIC
+            if not created:
+                if flag.status == 'irrelevant':
+                    # only re-activate if content changed
+                    if content.last_updated > flag.reviewed_at:
+                        flag.status = 'pending'
+                        flag.score = score
+                        flag.save()
+                else:
+                    # update score if needed
+                    flag.score = score
+                    flag.save()
