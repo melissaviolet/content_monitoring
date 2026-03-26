@@ -36,7 +36,7 @@ def run_scan():
                 }
             )
 
-            # 🔥 SUPPRESSION LOGIC
+            #suppression logic
             if not created:
                 if flag.status == 'irrelevant':
                     # only re-activate if content changed
