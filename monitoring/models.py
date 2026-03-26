@@ -23,3 +23,6 @@ class Flag(models.Model):
     status = models.CharField(max_length=20,choices= status_choices, default='pending')
     #for supression logic
     reviewed_at = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        unique_together = ('keyword', 'content_item')
