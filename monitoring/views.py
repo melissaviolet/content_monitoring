@@ -5,6 +5,7 @@ from .serializers import KeywordSerilaizer, FlagSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .services.content_loader import load_mock_data
+from .services.scanner import run_scan
 from django.utils import timezone
 
 #Keyword viewset
@@ -30,3 +31,9 @@ class FlagViewSet(viewsets.ModelViewSet):
         if instance.status in ['relevant', 'irrelevant']:
             instance.reviewed_at = timezone.now()
             instance.save()
+
+#for scan, API endpoint
+@api_view(['POST'])
+def scan_view(request):
+    run_scan()
+    return Response({"message": "Scan completed"})
