@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import Keyword, ContentItem, Flag
 
 #Keyword serializer
-class KeywordSerilaizer(serializers.ModelSerializer):
+class KeywordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Keyword
         fields = '__all__'

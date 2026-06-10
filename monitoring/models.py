@@ -11,7 +11,7 @@ class ContentItem(models.Model):
 
 class Flag(models.Model):
     status_choices = [
-        ('pending','Pending'),
+        ('pending','Pending'), 
         ('relevant', 'Relevant'),
         ('irrelevant', 'Irrelevant')
     ]

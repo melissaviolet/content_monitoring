@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
 from .models import Keyword, Flag
-from .serializers import KeywordSerilaizer, FlagSerializer
+from .serializers import KeywordSerializer, FlagSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .services.content_loader import load_mock_data
@@ -11,7 +11,7 @@ from django.utils import timezone
 #Keyword viewset
 class KeywordViewset(viewsets.ModelViewSet):
     queryset = Keyword.objects.all()
-    serializer_class = KeywordSerilaizer
+    serializer_class = KeywordSerializer
 
 #For import content mockup data 
 @api_view(['POST'])
