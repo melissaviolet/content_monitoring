@@ -8,6 +8,10 @@ from .services.content_loader import load_mock_data
 from .services.scanner import run_scan
 from django.utils import timezone
 
+# Dashboard page view
+def dashboard_view(request):
+    return render(request, 'monitoring/dashboard.html')
+
 #Keyword viewset
 class KeywordViewset(viewsets.ModelViewSet):
     queryset = Keyword.objects.all()
