@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FlagWatch — Flags</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --navy:      #0F1923;
+      --navy-2:    #162030;
+      --navy-3:    #1E2D40;
+      --amber:     #F5A623;
+      --amber-dim: #c47e0d;
+      --canvas:    #F7F8FA;
+      --surface:   #FFFFFF;
+      --text-main: #1A1A2E;
+      --text-muted:#6B7280;
+      --border:    #E5E7EB;
+      --green:     #22C55E;
+      --red:       #EF4444;
+      --sidebar-w: 240px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--canvas);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar (same as dashboard) ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--navy);
+      min-height: 100vh;
+      position: fixed;
+      top: 0; left: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+    }
+
+    .sidebar-brand {
+      padding: 28px 24px 24px;
+      border-bottom: 1px solid var(--navy-3);
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-icon {
+      width: 32px; height: 32px;
+      background: var(--amber);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+
+    .brand-name {
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-tagline {
+      font-size: 11px;
+      color: #5A7A9A;
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .sidebar-nav { padding: 20px 12px; flex: 1; }
+
+    .nav-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #3D5A73;
+      padding: 0 12px;
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #7A9BB5;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+      margin-bottom: 2px;
+    }
+
+    .nav-item:hover { background: var(--navy-3); color: #fff; }
+    .nav-item.active { background: var(--navy-3); color: #fff; }
+    .nav-item.active .nav-icon { color: var(--amber); }
+    .nav-icon { font-size: 16px; width: 18px; text-align: center; }
+
+    .nav-badge {
+      margin-left: auto;
+      background: var(--amber);
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 700;
+      font-family: 'Roboto Mono', monospace;
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+
+    .sidebar-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--navy-3);
+      font-size: 12px;
+      color: #3D5A73;
+    }
+
+    /* ── Main ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .topbar-title { font-size: 15px; font-weight: 600; }
+    .topbar-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+    .content-area { padding: 32px; flex: 1; }
+
+    /* ── Filter tabs ── */
+    .filter-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 4px;
+      width: fit-content;
+      margin-bottom: 24px;
+    }
+
+    .filter-tab {
+      padding: 7px 18px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      transition: background 0.15s, color 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .filter-tab:hover { background: var(--canvas); color: var(--text-main); }
+
+    .filter-tab.active {
+      background: var(--navy);
+      color: #fff;
+    }
+
+    .filter-tab.active .tab-count { background: var(--amber); color: var(--navy); }
+
+    .tab-count {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      background: var(--border);
+      color: var(--text-muted);
+      padding: 1px 6px;
+      border-radius: 10px;
+    }
+
+    /* ── Flags list ── */
+    .flag-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      transition: box-shadow 0.15s;
+      animation: fadeIn 0.3s ease both;
+    }
+
+    .flag-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* left colour strip based on status */
+    .flag-card.status-pending    { border-left: 4px solid var(--amber); }
+    .flag-card.status-relevant   { border-left: 4px solid var(--green); }
+    .flag-card.status-irrelevant { border-left: 4px solid var(--border); }
+
+    .flag-info { flex: 1; }
+
+    .flag-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .flag-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .flag-keyword {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 11px;
+      background: var(--navy);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .score-badge {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 6px;
+      min-width: 52px;
+      text-align: center;
+    }
+
+    .score-high  { background: #FEF3C7; color: #92400E; }
+    .score-mid   { background: #FEF9EC; color: #B45309; }
+    .score-low   { background: #F3F4F6; color: #6B7280; }
+
+    .status-pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: capitalize;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .status-pending    { background: #FEF3C7; color: #92400E; }
+    .status-relevant   { background: #DCFCE7; color: #166534; }
+    .status-irrelevant { background: #F3F4F6; color: #6B7280; }
+
+    /* ── Action buttons ── */
+    .flag-actions { display: flex; gap: 8px; }
+
+    .btn-relevant {
+      background: #DCFCE7;
+      color: #166534;
+      border: 1px solid #BBF7D0;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    .btn-relevant:hover { background: #BBF7D0; }
+
+    .btn-irrelevant {
+      background: #FEF2F2;
+      color: #991B1B;
+      border: 1px solid #FECACA;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    .btn-irrelevant:hover { background: #FECACA; }
+
+    .btn-reviewed {
+      background: var(--canvas);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 7px;
+      cursor: default;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--text-muted);
+    }
+
+    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+    .empty-title { font-size: 16px; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
+    .empty-sub { font-size: 13px; }
+
+    /* ── Loading skeleton ── */
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 6px;
+      height: 16px;
+    }
+
+    @keyframes shimmer {
+      from { background-position: 200% 0; }
+      to   { background-position: -200% 0; }
+    }
+
+    /* ── Toast ── */
+    .toast-box {
+      position: fixed;
+      bottom: 28px; right: 28px;
+      background: var(--navy);
+      color: #fff;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    .toast-box.show { opacity: 1; transform: translateY(0); }
+    .toast-icon { color: var(--amber); font-size: 16px; }
+  </style>
+</head>
+<body>
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-badge">
+        <div class="brand-icon">📡</div>
+        <span class="brand-name">FlagWatch</span>
+      </div>
+      <div class="brand-tagline">Content Monitoring</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label">Monitor</div>
+      <a class="nav-item" href="/">
+        <i class="bi bi-grid-1x2 nav-icon"></i> Dashboard
+      </a>
+      <a class="nav-item active" href="/flags">
+        <i class="bi bi-flag nav-icon"></i> Flags
+        <span class="nav-badge" id="sidebar-pending-count">—</span>
+      </a>
+      <a class="nav-item" href="/content">
+        <i class="bi bi-file-text nav-icon"></i> Content
+      </a>
+
+      <div class="nav-label">Configure</div>
+      <a class="nav-item" href="/keywords">
+        <i class="bi bi-tags nav-icon"></i> Keywords
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      API: <span style="color:#F5A623">localhost:8000</span>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">Flags</div>
+        <div class="topbar-sub">Review flagged content and mark decisions</div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content-area">
+
+      <!-- Filter tabs -->
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="setFilter('all', this)">
+          All <span class="tab-count" id="count-all">0</span>
+        </button>
+        <button class="filter-tab" onclick="setFilter('pending', this)">
+          Pending <span class="tab-count" id="count-pending">0</span>
+        </button>
+        <button class="filter-tab" onclick="setFilter('relevant', this)">
+          Relevant <span class="tab-count" id="count-relevant">0</span>
+        </button>
+        <button class="filter-tab" onclick="setFilter('irrelevant', this)">
+          Irrelevant <span class="tab-count" id="count-irrelevant">0</span>
+        </button>
+      </div>
+
+      <!-- Flags list -->
+      <div id="flags-list">
+        <!-- filled by JavaScript -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-box" id="toast">
+    <i class="bi bi-check-circle-fill toast-icon"></i>
+    <span id="toast-msg">Done.</span>
+  </div>
+
+  <script>
+    const API = '/api';
+
+    // ── State ──
+    // We keep ALL flags in memory here
+    // When the user filters, we don't re-fetch — we just re-render from this list
+    let allFlags = [];
+    let currentFilter = 'all';
+
+    // ── On page load ──
+    loadFlags();
+
+    // ── Fetch all flags from Django ──
+    async function loadFlags() {
+      // Show loading skeletons while we wait
+      showSkeletons();
+
+      try {
+        const res  = await fetch(`${API}/flags/`);
+        const data = await res.json();
+        allFlags = data;
+
+        updateCounts();
+        renderFlags();
+
+      } catch (e) {
+        showToast('Could not reach the API. Is Django running?', true);
+      }
+    }
+
+    // ── Count how many flags are in each status group ──
+    function updateCounts() {
+      const total      = allFlags.length;
+      const pending    = allFlags.filter(f => f.status === 'pending').length;
+      const relevant   = allFlags.filter(f => f.status === 'relevant').length;
+      const irrelevant = allFlags.filter(f => f.status === 'irrelevant').length;
+
+      // Update the little number badges on the tabs
+      document.getElementById('count-all').textContent       = total;
+      document.getElementById('count-pending').textContent   = pending;
+      document.getElementById('count-relevant').textContent  = relevant;
+      document.getElementById('count-irrelevant').textContent= irrelevant;
+
+      // Update sidebar badge
+      document.getElementById('sidebar-pending-count').textContent = pending;
+    }
+
+    // ── Filter tab clicked ──
+    function setFilter(filter, tabEl) {
+      // Remember which filter is active
+      currentFilter = filter;
+
+      // Move the "active" class to the clicked tab
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      tabEl.classList.add('active');
+
+      // Re-render with the new filter
+      renderFlags();
+    }
+
+    // ── Render the flags list ──
+    function renderFlags() {
+      const list = document.getElementById('flags-list');
+
+      // Filter the in-memory list
+      const visible = currentFilter === 'all'
+        ? allFlags
+        : allFlags.filter(f => f.status === currentFilter);
+
+      // If nothing to show
+      if (visible.length === 0) {
+        list.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <div class="empty-title">No flags here</div>
+            <div class="empty-sub">
+              ${currentFilter === 'all'
+                ? 'Import content and run a scan to generate flags.'
+                : `No flags marked as "${currentFilter}" yet.`}
+            </div>
+          </div>`;
+        return;
+      }
+
+      // Build one card per flag and join them all into one HTML string
+      list.innerHTML = visible.map(flag => buildFlagCard(flag)).join('');
+    }
+
+    // ── Build the HTML for one flag card ──
+    function buildFlagCard(flag) {
+      const scoreClass = flag.score >= 70 ? 'score-high'
+                       : flag.score >= 40 ? 'score-mid'
+                       : 'score-low';
+
+      // The action buttons change depending on current status
+      let actions = '';
+      if (flag.status === 'pending') {
+        // Pending flags get both buttons
+        actions = `
+          <button class="btn-relevant"   onclick="reviewFlag(${flag.id}, 'relevant')">
+            <i class="bi bi-check-lg"></i> Relevant
+          </button>
+          <button class="btn-irrelevant" onclick="reviewFlag(${flag.id}, 'irrelevant')">
+            <i class="bi bi-x-lg"></i> Irrelevant
+          </button>`;
+      } else {
+        // Already reviewed — just show a label
+        actions = `<span class="btn-reviewed">Reviewed</span>`;
+      }
+
+      return `
+        <div class="flag-card status-${flag.status}" id="flag-card-${flag.id}">
+          <div class="flag-info">
+            <div class="flag-title">
+              ${flag.content_item_title || 'Article #' + flag.content_item}
+            </div>
+            <div class="flag-meta">
+              <span class="flag-keyword">${flag.keyword_name || 'Keyword #' + flag.keyword}</span>
+              <span>Source: ${flag.content_item_source || '—'}</span>
+            </div>
+          </div>
+          <span class="score-badge ${scoreClass}">${flag.score}</span>
+          <span class="status-pill status-${flag.status}">${flag.status}</span>
+          <div class="flag-actions">${actions}</div>
+        </div>`;
+    }
+
+    // ── Mark a flag as relevant or irrelevant ──
+    async function reviewFlag(flagId, newStatus) {
+      try {
+        // Send PATCH request to Django with the new status
+        // PATCH means "update just this one field" (not the whole object)
+        const res = await fetch(`${API}/flags/${flagId}/`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+          //      ↑ convert JS object to JSON string to send it
+        });
+
+        const updated = await res.json();
+
+        // Find this flag in our in-memory list and update it
+        // so we don't need to re-fetch everything from Django
+        const index = allFlags.findIndex(f => f.id === flagId);
+        allFlags[index] = updated;
+
+        // Update counts and re-render
+        updateCounts();
+        renderFlags();
+
+        showToast(`Marked as ${newStatus}.`);
+
+      } catch (e) {
+        showToast('Could not update flag. Try again.', true);
+      }
+    }
+
+    // ── Loading skeletons (shown while fetching) ──
+    function showSkeletons() {
+      const list = document.getElementById('flags-list');
+      list.innerHTML = [1,2,3,4].map(() => `
+        <div class="flag-card status-pending" style="gap:16px">
+          <div style="flex:1">
+            <div class="skeleton" style="width:60%;margin-bottom:10px"></div>
+            <div class="skeleton" style="width:35%;height:12px"></div>
+          </div>
+          <div class="skeleton" style="width:52px;height:28px"></div>
+          <div class="skeleton" style="width:80px;height:28px"></div>
+          <div class="skeleton" style="width:140px;height:32px"></div>
+        </div>
+      `).join('');
+    }
+
+    // ── Toast notification ──
+    function showToast(msg, isError = false) {
+      const t    = document.getElementById('toast');
+      const icon = t.querySelector('.toast-icon');
+      document.getElementById('toast-msg').textContent = msg;
+      icon.className = isError
+        ? 'bi bi-exclamation-circle-fill toast-icon'
+        : 'bi bi-check-circle-fill toast-icon';
+      icon.style.color = isError ? '#EF4444' : '#F5A623';
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+  </script>
+
+</body>
+</html>
