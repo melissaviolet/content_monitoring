@@ -12,6 +12,10 @@ from django.utils import timezone
 def dashboard_view(request):
     return render(request, 'monitoring/dashboard.html')
 
+#Flags page view
+def flags_view(request):
+    return render(request, 'monitoring/flags.html')
+
 #Keyword viewset
 class KeywordViewset(viewsets.ModelViewSet):
     queryset = Keyword.objects.all()
