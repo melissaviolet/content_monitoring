@@ -12,11 +12,19 @@ from django.utils import timezone
 def dashboard_view(request):
     return render(request, 'monitoring/dashboard.html')
 
-#Flags page view
+# Flags page view
 def flags_view(request):
     return render(request, 'monitoring/flags.html')
 
-#Keyword viewset
+# Keywords page view
+def keywords_view(request):
+    return render(request, 'monitoring/keywords.html')
+
+# Content page view
+def content_view(request):
+    return render(request, 'monitoring/content.html')
+
+# Keyword viewset
 class KeywordViewset(viewsets.ModelViewSet):
     queryset = Keyword.objects.all()
     serializer_class = KeywordSerializer

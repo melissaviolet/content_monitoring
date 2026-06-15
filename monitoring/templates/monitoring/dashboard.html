@@ -35,12 +35,12 @@
         <i class="bi bi-flag nav-icon"></i> Flags
         <span class="nav-badge" id="sidebar-pending-count">—</span>
       </a>
-      <a class="nav-item" href="#">
+      <a class="nav-item" href="/content">
         <i class="bi bi-file-text nav-icon"></i> Content
       </a>
 
       <div class="nav-label">Configure</div>
-      <a class="nav-item" href="#">
+      <a class="nav-item" href="/keywords">
         <i class="bi bi-tags nav-icon"></i> Keywords
       </a>
     </nav>
@@ -142,7 +142,7 @@
         <div class="col-lg-4">
           <div class="section-header">
             <div class="section-title">Active Keywords</div>
-            <a href="#" class="section-link">Manage →</a>
+            <a href="/keywords" class="section-link">Manage →</a>
           </div>
           <div class="keyword-list" id="keyword-list">
             <div class="empty-state">
@@ -162,7 +162,7 @@
     <span id="toast-msg">Done.</span>
   </div>
 
-  <script src="static/monitoring/keywords.js"></script>
+  <script src="{% static 'monitoring/keywords.js' %}"></script>
   
 </body>
 </html>
