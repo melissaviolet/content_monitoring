@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,140 +16,6 @@
   <!-- Our shared CSS -->
   <link rel="stylesheet" href="static/styles.css"/>
 
-  <style>
-    /* ── Page-specific styles only ── */
-
-    /* The add keyword form area */
-    .add-form {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 24px;
-      margin-bottom: 28px;
-    }
-
-    .add-form-title {
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-    }
-
-    /* The input + button sit side by side */
-    .add-form-row {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .kw-input {
-      flex: 1;
-      padding: 10px 16px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 14px;
-      font-family: 'Roboto Mono', monospace;
-      color: var(--text-main);
-      background: var(--canvas);
-      outline: none;
-      transition: border 0.15s, box-shadow 0.15s;
-    }
-
-    /* Highlight the input when it's focused (clicked into) */
-    .kw-input:focus {
-      border-color: var(--amber);
-      box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.15);
-      background: var(--surface);
-    }
-
-    /* ── Keyword cards grid ── */
-    .keywords-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 14px;
-    }
-
-    .kw-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 18px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      animation: fadeIn 0.25s ease both;
-      transition: box-shadow 0.15s, border-color 0.15s;
-    }
-
-    .kw-card:hover {
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
-      border-color: var(--amber);
-    }
-
-    .kw-card-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    /* The amber dot on each keyword card */
-    .kw-dot {
-      width: 8px; height: 8px;
-      background: var(--amber);
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .kw-name {
-      font-family: 'Roboto Mono', monospace;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-main);
-    }
-
-    .kw-id {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-
-    /* Delete button — hidden until you hover the card */
-    .kw-delete {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 16px;
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 5px;
-      transition: color 0.15s, background 0.15s;
-      opacity: 0;  /* invisible by default */
-    }
-
-    /* Show delete button when card is hovered */
-    .kw-card:hover .kw-delete {
-      opacity: 1;
-    }
-
-    .kw-delete:hover {
-      color: var(--red);
-      background: #FEF2F2;
-    }
-
-    /* Skeleton card for loading state */
-    .kw-card-skeleton {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 18px 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-  </style>
 </head>
 <body>
 
@@ -237,6 +105,7 @@
     <i class="bi bi-check-circle-fill toast-icon"></i>
     <span id="toast-msg">Done.</span>
   </div>
+  <script src="static/monitoring/keywords.js"></script>
 
  
 </body>
