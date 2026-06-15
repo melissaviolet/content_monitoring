@@ -1,4 +1,4 @@
-  <style>
+/* FOR THE DASHBOARD PAGE */
     :root {
       --navy:      #0F1923;
       --navy-2:    #162030;
@@ -431,10 +431,10 @@
 
     .empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
     .empty-text { font-size: 14px; }
-  </style>
 
-  /* For the Flags page */
-    <style>
+
+  /* FOR THE FLAGS PAGE */
+  
     :root {
       --navy:      #0F1923;
       --navy-2:    #162030;
@@ -798,4 +798,4 @@
 
     .toast-box.show { opacity: 1; transform: translateY(0); }
     .toast-icon { color: var(--amber); font-size: 16px; }
-  </style>
+  
