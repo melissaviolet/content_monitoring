@@ -1,9 +1,9 @@
 // =============================================
 // FlagWatch — Content Page JS
-// Talks to: GET /api/flags/ (for sidebar count)
+// Talks to: GET /api/content-items/ (list imported articles)
+//           GET /api/flags/ (for sidebar count and flag summaries)
 //           POST /api/import-content/
 //           POST /api/scan/
-//           GET /api/flags/ (to show flags per article)
 // =============================================
 
 const API = '/api';
@@ -17,37 +17,32 @@ async function loadContent() {
   showSkeletons();
 
   try {
-    // We don't have a /api/content/ endpoint that lists articles
-    // So we fetch flags and extract the content items from them
-    // This is a workaround since your backend doesn't expose ContentItem directly
-    const res   = await fetch(`${API}/flags/`);
-    const flags = await res.json();
+    const [contentRes, flagRes] = await Promise.all([
+      fetch(`${API}/content-items/`),
+      fetch(`${API}/flags/`)
+    ]);
 
-    // Build a map of content items from the flags data
-    // A "map" here means an object where the key is the content item ID
-    // and the value is info about that article
+    const contents = await contentRes.json();
+    const flags    = await flagRes.json();
+
     const contentMap = {};
+
+    contents.forEach(item => {
+      contentMap[item.id] = {
+        id: item.id,
+        title: item.title,
+        source: item.source,
+        flags: []
+      };
+    });
 
     flags.forEach(flag => {
       const id = flag.content_item;
-
-      if (!contentMap[id]) {
-        // First time we see this content item — create an entry
-        contentMap[id] = {
-          id:     id,
-          title:  flag.content_item_title  || 'Article #' + id,
-          source: flag.content_item_source || '—',
-          flags:  []
-        };
-      }
-
-      // Add this flag to the article's flag list
+      if (!contentMap[id]) return;
       contentMap[id].flags.push(flag);
     });
 
-    // Convert the map into an array so we can loop over it
     const articles = Object.values(contentMap);
-
     renderContent(articles);
 
   } catch (e) {

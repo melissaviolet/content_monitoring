@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from .models import Keyword, Flag
-from .serializers import KeywordSerializer, FlagSerializer
+from .models import Keyword, Flag, ContentItem
+from .serializers import KeywordSerializer, FlagSerializer, ContentItemSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .services.content_loader import load_mock_data
@@ -29,7 +29,11 @@ class KeywordViewset(viewsets.ModelViewSet):
     queryset = Keyword.objects.all()
     serializer_class = KeywordSerializer
 
-#For import content mockup data 
+class ContentItemViewSet(viewsets.ModelViewSet):
+    queryset = ContentItem.objects.all()
+    serializer_class = ContentItemSerializer
+
+# For import content mockup data 
 @api_view(['POST'])
 def import_content_view(request):
     load_mock_data()
