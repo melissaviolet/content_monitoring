@@ -156,6 +156,32 @@
     </div>
   </div>
 
+  <!-- Chatbot widget -->
+  <div class="chatbot-panel">
+    <button class="chatbot-toggle" id="chatbot-toggle">
+      <i class="bi bi-chat-dots"></i>
+      <span>Ask AI</span>
+    </button>
+    <div class="chatbot-window" id="chatbot-window">
+      <div class="chatbot-header">
+        <div>
+          <div class="chatbot-title">AI Assistant</div>
+          <div class="chatbot-subtitle">Ask about content, flags, and keywords</div>
+        </div>
+        <button class="chatbot-close" id="chatbot-close">×</button>
+      </div>
+      <div class="chatbot-messages" id="chatbot-messages">
+        <div class="message bot">
+          Hi! I can help you review the monitoring dashboard.
+        </div>
+      </div>
+      <form class="chatbot-form" id="chatbot-form">
+        <input type="text" id="chatbot-input" placeholder="Ask something..." />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div class="toast-box" id="toast">
     <i class="bi bi-check-circle-fill toast-icon"></i>
