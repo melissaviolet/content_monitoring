@@ -11,21 +11,29 @@ django.setup()
 
 from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_ollama import ChatOllama, OllamaEmbeddings
-from monitoring.models import ContentItem, Flag
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_ollama import ChatOllama
+from monitoring.models import ContentItem, Flag, Keyword
 
 MODEL_NAME = "qwen3:4b"
-EMBEDDING_MODEL = "qwen3:4b"
+EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 VECTOR_DIR = Path(__file__).resolve().parent / "vector_store"
 
-embeddings = None
-try:
-    embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL)
-except Exception:
-    embeddings = None
+_embeddings = None
+
+
+def _get_embeddings():
+    global _embeddings
+    if _embeddings is None:
+        try:
+            _embeddings = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
+        except Exception:
+            _embeddings = False
+    return _embeddings if _embeddings is not False else None
 
 
 def build_vector_store() -> Chroma | None:
+    embeddings = _get_embeddings()
     if embeddings is None:
         return None
 
@@ -95,10 +103,15 @@ def ensure_vector_index() -> Chroma | None:
 
 
 def get_context(question: str, limit: int = 5) -> str:
+    content_count = ContentItem.objects.count()
+    keyword_count = Keyword.objects.count()
+    flag_count = Flag.objects.count()
+
     vector_store = ensure_vector_index()
     if vector_store is None:
         return (
-            "No embedding model is available yet. "
+            f"Database status: {content_count} content items, {keyword_count} keywords, and {flag_count} flags. "
+            "No embedding model is available yet, so vector retrieval cannot run right now. "
             "Please ensure Ollama is running with embedding support or use the fallback chatbot flow."
         )
 

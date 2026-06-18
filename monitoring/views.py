@@ -9,9 +9,10 @@ from .services.scanner import run_scan
 from django.utils import timezone
 
 try:
-    from langchain_ollama import ChatOllama
+    from website_ai import build_chain, get_context
 except Exception:
-    ChatOllama = None
+    build_chain = None
+    get_context = None
 
 # Dashboard page view
 def dashboard_view(request):
@@ -108,21 +109,16 @@ def chatbot_query(request):
     keywords = Keyword.objects.all()
     flags = Flag.objects.select_related('keyword', 'content_item')
 
-    # Try a real LLM if it is available; otherwise use a deterministic fallback.
-    if ChatOllama is not None:
+    # Use the same context-retrieval pipeline as the startup helper when available.
+    if build_chain is not None and get_context is not None:
         try:
-            llm = ChatOllama(model='qwen3:4b')
-            context = "\n\n".join(
-                f"Title: {item.title}\nSource: {item.source}\nBody: {item.body}"
-                for item in content_items[:8]
-            )
-            prompt = (
-                "You are a helpful assistant for a content monitoring dashboard. "
-                "Use only the context below to answer the user's question. "
-                f"Context:\n{context}\n\nQuestion: {question}"
-            )
-            answer = llm.invoke(prompt)
-            answer_text = answer.content if hasattr(answer, 'content') else str(answer)
+            chain = build_chain()
+            context = get_context(question)
+            result = chain.invoke({
+                'context': context,
+                'question': question,
+            })
+            answer_text = result.content if hasattr(result, 'content') else str(result)
             return Response({
                 "answer": answer_text,
                 "sources": list(content_items.values('id', 'title')[:5])
