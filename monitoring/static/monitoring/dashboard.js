@@ -148,7 +148,7 @@
       chatMessages.appendChild(msg);
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
-
+ 
     async function askChatbot(question) {
       addChatMessage('Thinking…', 'bot');
       try {
