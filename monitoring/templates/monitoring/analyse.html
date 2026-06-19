@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FlagWatch — AI Analyse</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <!-- Shared CSS -->
+  <link rel="stylesheet" href="static/styles.css"/>
+
+  <style>
+    /* ── Page-specific styles ── */
+
+    /* The two-column layout: input on left, result on right */
+    .analyse-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* On smaller screens, stack them vertically */
+    @media (max-width: 900px) {
+      .analyse-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Input panel ── */
+    .input-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .panel-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .article-textarea {
+      width: 100%;
+      min-height: 320px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-main);
+      background: var(--canvas);
+      resize: vertical;        /* user can drag to resize vertically */
+      outline: none;
+      line-height: 1.6;
+      transition: border 0.15s, box-shadow 0.15s;
+    }
+
+    .article-textarea:focus {
+      border-color: var(--amber);
+      box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.15);
+      background: var(--surface);
+    }
+
+    .input-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    /* ── Result panel ── */
+    .result-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: none; /* hidden until we have results */
+    }
+
+    .result-section {
+      margin-bottom: 22px;
+    }
+
+    .result-section:last-child { margin-bottom: 0; }
+
+    .result-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .result-text {
+      font-size: 14px;
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    /* Relevance badge — colour changes based on level */
+    .relevance-badge {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 5px 16px;
+      border-radius: 20px;
+      text-transform: capitalize;
+    }
+
+    .relevance-high   { background: #DCFCE7; color: #166534; }
+    .relevance-medium { background: #FEF3C7; color: #92400E; }
+    .relevance-low    { background: #F3F4F6; color: #6B7280; }
+
+    /* Matched keyword pills */
+    .matched-kw {
+      display: inline-block;
+      background: var(--navy);
+      color: var(--amber);
+      font-family: 'Roboto Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin: 3px;
+    }
+
+    /* ── Error box ── */
+    .error-area {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 10px;
+      padding: 16px 20px;
+      color: #991B1B;
+      font-size: 13px;
+      display: none;
+      margin-top: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    /* ── How it works banner ── */
+    .how-it-works {
+      background: var(--navy);
+      border-radius: 10px;
+      padding: 16px 22px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 13px;
+      color: #7A9BB5;
+    }
+
+    .how-it-works strong { color: var(--amber); }
+
+    /* ── AI spinner (different from the small button spinner) ── */
+    .ai-loading {
+      display: none;
+      text-align: center;
+      padding: 48px 24px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+    }
+
+    .ai-loading-icon {
+      font-size: 32px;
+      animation: pulse 1.5s ease-in-out infinite;
+      margin-bottom: 14px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.95); }
+    }
+
+    .ai-loading-text {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .ai-loading-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-badge">
+        <div class="brand-icon">📡</div>
+        <span class="brand-name">FlagWatch</span>
+      </div>
+      <div class="brand-tagline">Content Monitoring</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-label">Monitor</div>
+      <a class="nav-item" href="/">
+        <i class="bi bi-grid-1x2 nav-icon"></i> Dashboard
+      </a>
+      <a class="nav-item" href="/flags">
+        <i class="bi bi-flag nav-icon"></i> Flags
+        <span class="nav-badge" id="sidebar-pending-count">—</span>
+      </a>
+      <a class="nav-item" href="/content">
+        <i class="bi bi-file-text nav-icon"></i> Content
+      </a>
+
+      <div class="nav-label">Configure</div>
+      <a class="nav-item" href="/keywords">
+        <i class="bi bi-tags nav-icon"></i> Keywords
+      </a>
+
+      <div class="nav-label">Tools</div>
+      <a class="nav-item active" href="/analyse">
+        <i class="bi bi-robot nav-icon"></i> AI Analyse
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      API: <span style="color:#F5A623">localhost:8000</span>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">AI Analyse</div>
+        <div class="topbar-sub">Paste an article and let Ollama analyse it against your keywords</div>
+      </div>
+      <!-- Shows which model is being used -->
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted)">
+        <i class="bi bi-circle-fill" style="font-size:8px;color:var(--green)"></i>
+        llama3.2 via Ollama
+      </div>
+    </div>
+
+    <!-- Content area -->
+    <div class="content-area">
+
+      <!-- How it works -->
+      <div class="how-it-works">
+        <i class="bi bi-robot" style="font-size:20px;color:var(--amber)"></i>
+        <span>
+          Paste any article below. Ollama runs <strong>locally on your machine</strong> —
+          no data leaves your computer. It will summarise the article and match it
+          against your tracked keywords.
+        </span>
+      </div>
+
+      <!-- Two column grid -->
+      <div class="analyse-grid">
+
+        <!-- Left: Input -->
+        <div>
+          <div class="input-panel">
+            <div class="panel-title">Article Text</div>
+            <textarea
+              id="article-input"
+              class="article-textarea"
+              placeholder="Paste an article here...
+
+For example:
+'Scientists have announced a breakthrough in climate research, showing that AI models can now predict extreme weather events with 95% accuracy. The study used machine learning algorithms trained on decades of climate data...'"
+            ></textarea>
+            <div class="input-actions">
+              <button class="btn-primary" id="analyse-btn" onclick="analyseArticle()">
+                <i class="bi bi-robot"></i>
+                <span id="btn-text">Analyse with AI</span>
+                <div class="spinner" id="analyse-spinner"></div>
+              </button>
+              <button class="btn-secondary" onclick="clearAll()">
+                <i class="bi bi-x"></i> Clear
+              </button>
+            </div>
+          </div>
+
+          <!-- Error box (shown if something goes wrong) -->
+          <div class="error-area" id="error-area" style="display:none">
+            <i class="bi bi-exclamation-circle-fill" style="font-size:16px;flex-shrink:0"></i>
+            <div>
+              <strong>Something went wrong</strong><br/>
+              <span id="error-msg"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Result or loading state -->
+        <div>
+
+          <!-- Loading animation (shown while Ollama is thinking) -->
+          <div class="ai-loading" id="loading-area">
+            <div class="ai-loading-icon">🤖</div>
+            <div class="ai-loading-text">Ollama is thinking...</div>
+            <div class="ai-loading-sub">This can take 10–30 seconds depending on your machine</div>
+          </div>
+
+          <!-- Result (shown after Ollama responds) -->
+          <div class="result-panel" id="result-area">
+
+            <div class="result-section">
+              <div class="result-label">Summary</div>
+              <div class="result-text" id="result-summary"></div>
+            </div>
+
+            <div class="result-section">
+              <div class="result-label">Relevance</div>
+              <span class="relevance-badge" id="result-relevance"></span>
+            </div>
+
+            <div class="result-section">
+              <div class="result-label">Reason</div>
+              <div class="result-text" id="result-reason"></div>
+            </div>
+
+            <div class="result-section">
+              <div class="result-label">Matched Keywords</div>
+              <div id="result-keywords"></div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-box" id="toast">
+    <i class="bi bi-check-circle-fill toast-icon"></i>
+    <span id="toast-msg">Done.</span>
+  </div>
+
+  <script src="static/js/analyse.js"></script>
+
+  <script src="static/js/chat-widget.js"></script>
+
+</body>
+</html>
+

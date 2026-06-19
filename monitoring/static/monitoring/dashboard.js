@@ -133,55 +133,7 @@
       }
     }
 
-    // ── Chatbot helpers ──
-    const chatToggle = document.getElementById('chatbot-toggle');
-    const chatWindow = document.getElementById('chatbot-window');
-    const chatClose = document.getElementById('chatbot-close');
-    const chatForm = document.getElementById('chatbot-form');
-    const chatInput = document.getElementById('chatbot-input');
-    const chatMessages = document.getElementById('chatbot-messages');
 
-    function addChatMessage(text, sender = 'bot') {
-      const msg = document.createElement('div');
-      msg.className = `message ${sender}`;
-      msg.textContent = text;
-      chatMessages.appendChild(msg);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
- 
-    async function askChatbot(question) {
-      addChatMessage('Thinking…', 'bot');
-      try {
-        const res = await fetch('/api/chatbot/', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question })
-        });
-        const data = await res.json();
-        chatMessages.lastElementChild.remove();
-        addChatMessage(data.answer || 'I could not get an answer right now.', 'bot');
-      } catch (error) {
-        chatMessages.lastElementChild.remove();
-        addChatMessage('The chatbot is unavailable right now.', 'bot');
-      }
-    }
-
-    chatToggle?.addEventListener('click', () => {
-      chatWindow.classList.toggle('open');
-    });
-
-    chatClose?.addEventListener('click', () => {
-      chatWindow.classList.remove('open');
-    });
-
-    chatForm?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const question = chatInput.value.trim();
-      if (!question) return;
-      addChatMessage(question, 'user');
-      chatInput.value = '';
-      askChatbot(question);
-    });
 
     // ── Init ──
     loadStats();
