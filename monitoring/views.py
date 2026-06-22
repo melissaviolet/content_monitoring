@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .services.content_loader import load_mock_data
 from .services.scanner import run_scan
-from .services.rag_chat import ask_rag_chatbot
+from .services.rag_chat import ask_rag_chatbot, get_context, _get_chain as build_chain
 from django.utils import timezone
 
 
@@ -25,6 +25,10 @@ def keywords_view(request):
 # Content page view
 def content_view(request):
     return render(request, 'monitoring/content.html')
+
+# Analyse page view
+def analyse_page_view(request):
+    return render(request, 'monitoring/analyse.html')
 
 # Keyword viewset
 class KeywordViewset(viewsets.ModelViewSet):
@@ -61,6 +65,62 @@ def scan_view(request):
     return Response({"message": "Scan completed"})
 
 
+def _build_analysis_result(text: str):
+    text = (text or '').strip()
+    if not text:
+        return {
+            "summary": "",
+            "relevance": "low",
+            "reason": "No article text was provided.",
+            "matched_keywords": [],
+        }
+
+    words = text.split()
+    summary = text if len(words) <= 120 else ' '.join(words[:120]) + '...'
+
+    matched_keywords = []
+    seen = set()
+    for keyword in Keyword.objects.all():
+        name = keyword.name.strip()
+        if not name:
+            continue
+        if name.lower() in text.lower() and name.lower() not in seen:
+            matched_keywords.append(name)
+            seen.add(name.lower())
+
+    if matched_keywords:
+        reason = (
+            "Matched tracked keywords: "
+            + ", ".join(matched_keywords)
+            + "."
+        )
+        relevance = 'high' if len(matched_keywords) >= 2 else 'medium'
+    else:
+        reason = "No tracked keywords were directly detected in the article text."
+        relevance = 'low'
+
+    return {
+        "summary": summary,
+        "relevance": relevance,
+        "reason": reason,
+        "matched_keywords": matched_keywords,
+    }
+
+
+@api_view(['POST'])
+def analyse_api_view(request):
+    data = request.data or {}
+    text = (data.get('text') or '').strip()
+
+    if not text:
+        return Response(
+            {"error": "Please paste an article first."},
+            status=400,
+        )
+
+    return Response(_build_analysis_result(text))
+
+
 # ── AI Chatbot endpoint ──
 # Called by the floating widget on every page (chat-widget.js)
 # Expects: { "question": "..." }
@@ -73,13 +133,13 @@ def chatbot_query(request):
     if not question:
         return Response({"answer": "Please ask a question first."}, status=400)
 
-    # ask_rag_chatbot() does everything internally:
-    # embeds the question, searches ChromaDB for relevant articles,
-    # builds the prompt, sends it to Ollama, returns the answer text
-    answer = ask_rag_chatbot(question)
+    # keep the public flow compatible with the tests while still using the
+    # actual RAG implementation underneath
+    context = get_context(question)
+    chain = build_chain()
+    result = chain.invoke({"context": context, "question": question})
+    answer = result.content if hasattr(result, 'content') else str(result)
 
-    # Also return a few recent articles as "sources" so the
-    # frontend could optionally show what the answer is based on
     recent_sources = list(
         ContentItem.objects.all().order_by('-last_updated').values('id', 'title')[:5]
     )

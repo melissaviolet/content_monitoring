@@ -4,6 +4,13 @@ from django.test import TestCase
 from django.urls import reverse
 
 
+class AnalysePageTests(TestCase):
+    def test_analyse_page_is_accessible(self):
+        response = self.client.get(reverse('analyse'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'AI Analyse')
+
+
 class ChatbotEndpointTests(TestCase):
     def test_chatbot_endpoint_returns_answer(self):
         response = self.client.post(

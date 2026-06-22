@@ -16,15 +16,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from monitoring.views import dashboard_view, flags_view, keywords_view, content_view, chatbot_query
+from monitoring.views import (
+    dashboard_view,
+    flags_view,
+    keywords_view,
+    content_view,
+    chatbot_query,
+    analyse_page_view,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('monitoring.urls')),
-    path('chatbot/', chatbot_query),
-    # path('api/chatbot/', chatbot_query, name='chatbot-query'),
+    path('api/chatbot/', chatbot_query, name='chatbot-query'),
     path('', dashboard_view, name='dashboard'),
     path('flags/', flags_view, name='flags'),
     path('keywords/', keywords_view, name='keywords'),
     path('content/', content_view, name='content'),
+    path('analyse/', analyse_page_view, name='analyse'),
 ]
